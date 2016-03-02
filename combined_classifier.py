@@ -3,7 +3,7 @@ import copy
 
 
 class combined_classifier(object):
-	def __init__(self):
+	def __init__(self,object):
 		self.clf = object
 		self.clf_combined = []
 
@@ -17,7 +17,7 @@ class combined_classifier(object):
 				else:
 					y_temp.append(0)
 			self.clf.fit(xtr,y_temp)
-			self.clf_combined.append(clf)
+			self.clf_combined.append(self.clf)
 
 	def predict(self,x):
 		score = []
@@ -25,5 +25,12 @@ class combined_classifier(object):
 			score.append(i.predict(x))
 		opt = score.index(max(score))
 		return self.class_list[opt]
+
+	def score(xtr,ytr):
+		score = 0.
+		for i in range(len(xtr)):
+			if ytr[i] == self.predict(i):
+				score += 1.
+		return score/len(ytr)
 
 
