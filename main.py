@@ -12,5 +12,5 @@ clf = svm.SVC(kernel='linear', C=1)
 clf_combined = combined_classifier(clf)
 x_train, x_test, y_train, y_test = train_test_split(xtr, ytr, test_size=0.2)
 clf_combined.fit(x_train,y_train)
-scores = clf.score(x_test,y_test)
+scores = clf_combined.score(x_test,y_test)
 print scores
