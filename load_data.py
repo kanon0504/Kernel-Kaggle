@@ -20,6 +20,22 @@ def load_data():
 
 	return xtr, ytr
 
+def flip(xtr,ytr):
+	x = []
+	y = []
+	for i in range(len(xtr)):
+		x.append(list(np.fliplr(np.array(xtr[i]))))
+		y.append(ytr[i])
+
+	return x, y
+
+def atcw_rotate(xtr):
+	x = []
+	n = len(x[0])
+	for i in xtr:
+		x.append(np.array(i)[::-1])
+	x = list(np.array(x).reshape(n,n))
+	return x
 
 def flatten(xtr):
 	for i in range(len(xtr)):
