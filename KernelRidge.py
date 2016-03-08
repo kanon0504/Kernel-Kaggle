@@ -14,14 +14,13 @@ class linear_kernel:
         self._Kmatrix = x.dot(x.T)
         return self._Kmatrix
     
-    def Kernel_arr(self,x_arr):
+    def Kernel_arr(self,Xtest):
 		"""
 		For prediction: 
-		input an obsevation x
-		output a n dimension vector K(x_i,x), i = 1,2,...,n
+		input x_test, np.array on shape (m, p)
+		output np.array, on shape (n,m)
 		"""
-		return np.asarray([self._x[i].dot(x_arr) for i in range(self._x.shape[0])])
-
+		return self._x.dot(Xtest.T)
 
 
 
@@ -62,7 +61,7 @@ class rbf_kernel:
 		"""
 		For prediction: 
 		input  : x_test, a np.array en shape (m,p)
-		output : a n dimension vector K(x_i,x), i = 1,2,...,n
+		output np.array, on shape (n,m)
 		"""
 
 		Y = np.asarray(Xtest)
@@ -133,7 +132,6 @@ class KernelRidge:
 		input: X_test, a np.array on shape (n,p)
 		output: y_train, a np.array on shape (n,)
 		"""
-		Xtest = np.asarray(Xtest)
 		ytemp = self._kernel.Kernel_arr(Xtest)
 
 		return self._alpha.dot(ytemp)
