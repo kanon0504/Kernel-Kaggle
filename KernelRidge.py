@@ -61,7 +61,7 @@ class rbf_kernel:
 		
 		"""
 		For prediction: 
-		input  : an obsevation x, a np.array en shape (p,)
+		input  : x_test, a np.array en shape (m,p)
 		output : a n dimension vector K(x_i,x), i = 1,2,...,n
 		"""
 
@@ -116,7 +116,7 @@ class KernelRidge:
 		"""
 		To fit the model:
 		input:  X_train, a np.array on shape (n,p)
-			y_traiin, a np.array on shape (n,)
+			y_train, a np.array on shape (n,)
 		"""
 		self._x = np.asarray(X)
 		K_arr = self._kernel.kernel_create(np.asarray(X))
