@@ -1,8 +1,7 @@
-from scipy.optimize import fmin_l_bfgs_b
-from scipy.optimize import minimize
 import numpy as np
 from load_data import load_data, plot, flatten
 from sklearn.cross_validation import train_test_split
+import time
 
 
 class linear_kernel:
@@ -48,17 +47,17 @@ class rbf_kernel:
 		n = x.shape[0]
 		self._x = x
 
+		A = 2*x.dot(x.T)
+		B = np.linalg.norm(x,axis = 1)[:,np.newaxis].dot(np.ones(shape=(1,n)))
+		B *= B
+		C = np.exp(A-B-B.T)/(2*self._sigma)
 
-		def k(x,y):
-			return np.exp(-1*(x-y).dot((x-y).T)/(2*self._sigma))
-
-
-		self._Kmatrix = np.asarray([k(x[i],x[j]) for i in range(n) for j in range(n)]).reshape(n,n)
-
-
+		#def k(x,y):
+		#	return np.exp(-1*(x-y).dot((x-y).T)/(2*self._sigma))
+		self._Kmatrix = C
 		return self._Kmatrix
 
-	def Kernel_arr(self,x_arr):
+	def Kernel_arr(self,Xtest):
 		
 		"""
 		For prediction: 
@@ -66,10 +65,16 @@ class rbf_kernel:
 		output : a n dimension vector K(x_i,x), i = 1,2,...,n
 		"""
 
-		def k(x,y):
-			return np.exp(-1*(x-y).dot((x-y).T)/(2*self._sigma))
+		Y = np.asarray(Xtest)
+		X = self._x
+		n = X.shape[0]
+		m = Y.shape[0]
+		A = np.linalg.norm(X,axis = 1)[:,np.newaxis].dot(np.ones(shape = (1,m)))**2
+		B = (np.linalg.norm(Y,axis = 1)[:,np.newaxis].dot(np.ones(shape = (1,n))).T)**2
+		C = 2*X.dot(Y.T)
+		ytemp = np.exp((C-A-B)/(2*self._sigma))
+		return ytemp
 
-		return np.asarray([k(self._x[i],x_arr) for i in range(self._x.shape[0])])
 
 
 
@@ -77,7 +82,7 @@ class rbf_kernel:
 
 class KernelRidge:
 
-    def __init__(self, lmb = 0.01, kernel = None, sigma = 1.0):
+	def __init__(self, lmb = 0.01, kernel = None, sigma = 1.0):
 	    	
 		"""
 		:Parameters:
@@ -96,6 +101,7 @@ class KernelRidge:
 
 		if kernel == 'rbf':
 			self._kernel = rbf_kernel(sigma = sigma)
+			self._sigma = sigma
 			
 		if lmb < 0:
 		    raise ValueError("lmb must be >= 0")
@@ -103,16 +109,16 @@ class KernelRidge:
 		self._lmb = float(lmb)        
 		self._alpha = None
 
-  
-                                
-    def fit(self, X, y):
-    	
+
+	                            
+	def fit(self, X, y):
+		
 		"""
 		To fit the model:
 		input:  X_train, a np.array on shape (n,p)
 			y_traiin, a np.array on shape (n,)
 		"""
-
+		self._x = np.asarray(X)
 		K_arr = self._kernel.kernel_create(np.asarray(X))
 		y_arr = np.asarray(y, dtype=np.float)
 
@@ -120,29 +126,20 @@ class KernelRidge:
 
 		self._alpha = np.linalg.solve(K_arr+self._lmb*n*np.eye(n),y_arr)
 	                
-    def predict(self, Xtest):
-    	
+	def predict(self, Xtest):
+		
 		"""
 		To fit the model:
 		input: X_test, a np.array on shape (n,p)
 		output: y_train, a np.array on shape (n,)
 		"""
 		Xtest = np.asarray(Xtest)
-		p = [np.dot(self._alpha, self._kernel.Kernel_arr(Xtest[i])) for i in range(Xtest.shape[0])]
-		return np.asarray(p)
-    
-    def score(self,Xtest,Ytest):
-    	
-		"""
-		To fit the model:
-		input:  X_test, a np.array on shape (m,p)
-			y_train, a np.array on shape (m,)
-		"""
-		Xtest = np.asarray(Xtest)
-		Ytest = np.asarray(Ytest)
-		p = [np.dot(self._alpha, self._kernel.Kernel_arr(Xtest[i])) for i in range(Xtest.shape[0])]
-		p = np.asarray([round(i) for i in  p])
-		return float(sum(p == Ytest))/Xtest.shape[0]
+		ytemp = self._kernel.Kernel_arr(Xtest)
+
+		return self._alpha.dot(ytemp)
+
+
+
 
 	
 
@@ -157,9 +154,19 @@ if __name__ == '__main__':
 
 	for i in range(1):
 		x_train, x_test, y_train, y_test = train_test_split(xtr0, ytr0, test_size=0.2)
-		clf = KernelRidge()
+		clf = KernelRidge(lmb = 0.4, kernel = 'rbf', sigma = 1.0)
+		
+		start = time.time()
 		clf.fit(x_train,y_train)
-		print clf.score(x_test,y_test)
+		print "fit time cost",time.time()-start
+
+		start2 = time.time()
+		clf.predict(x_test)
+		print "predict time cost",time.time()-start2
+
+
+
+	
 
 
 
