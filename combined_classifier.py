@@ -20,12 +20,17 @@ class combined_classifier(object):
 			clf_temp.fit(xtr,y_temp)
 			self.clf_combined.append(clf_temp)
 
-	def predict(self,x):
-		score = []
-		for i in self.clf_combined:
-			score.append(i.predict(x.reshape(1,-1)))
-		opt = score.index(max(score))
-		return self.class_list[opt]
+	def predict(self,xtr):
+		output = []
+		for x in xtr:
+			score = []
+			for i in self.clf_combined:				
+				score.append(i.predict(x.reshape(1,-1)))
+			opt = score.index(max(score))
+			output.append(self.class_list[opt])
+		return output
+	# input: each data entry of the database
+	# output: the prediction class in string type
 
 	def score(self,xtr,ytr):
 		score = 0.
