@@ -21,22 +21,23 @@ class combined_classifier(object):
 			self.clf_combined.append(clf_temp)
 
 	def predict(self,xtr):
-		output = []
-		for x in xtr:
-			score = []
-			for i in self.clf_combined:				
-				score.append(i.predict(x.reshape(1,-1)))
-			opt = score.index(max(score))
-			output.append(self.class_list[opt])
+		score = []
+		for i in self.clf_combined:			
+			score.append(i.predict(np.array(xtr)))
+		score = np.array(score).T
+		opt = np.argmax(score, axis = 1)
+		output = [self.class_list[i] for i in opt]
 		return output
 	# input: each data entry of the database
 	# output: the prediction class in string type
 
 	def score(self,xtr,ytr):
 		score = 0.
-		for i in range(len(xtr)):
-			if ytr[i] == self.predict(xtr[i]):
+		y = self.predict(xtr)
+		for i in range(len(ytr)):
+			if y[i] == ytr[i]:
 				score += 1.
 		return score/len(ytr)
+
 
 
