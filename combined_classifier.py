@@ -26,6 +26,7 @@ class combined_classifier(object):
 			score.append(i.predict(np.array(xtr)))
 		score = np.array(score).T
 		opt = np.argmax(score, axis = 1)
+		print opt
 		output = [self.class_list[i] for i in opt]
 		return output
 	# input: each data entry of the database

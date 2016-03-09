@@ -20,6 +20,15 @@ def load_data():
 
 	return xtr, ytr
 
+def load_data_test():
+	xte = []	
+	with open('Xte.csv','rb') as csvfile:
+		reader = csv.reader(csvfile, delimiter = ',')
+		for row in reader:
+			row = np.array(row).reshape(28,28)
+			xte.append(list(row.astype(float)))
+	return xte
+
 def flip(xtr,ytr):
 	x = []
 	y = []
