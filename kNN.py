@@ -34,9 +34,18 @@ def kNN(k, xtr, ytr, xte, sigma):
             neighbors[i] = ytr[index[i]]
 
         c = Counter(neighbors)
-        label = c.most_common()[0][0]
-        yte.append(str(int(label)))
+        label_float = c.most_common()[0][0]
+        label_int = int(label_float)
+        label_string = str(label_int)
+        yte.append(label_string)
 
 
     # return the label of the test data
     return yte
+
+def verify(y,yte):
+    score = 0.
+    for i in range(len(yte)):
+        if y[i] == yte[i]:
+            score += 1.
+    return score/len(yte)
