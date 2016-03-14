@@ -11,6 +11,10 @@ from kNN import kNN
 xtr, ytr = load_data()
 xte = load_data_test()
 
+#print xtr[0]
+
+#plot(xtr, ytr)
+
 xte = flatten(xte)
 xtr = flatten(xtr)
 
@@ -38,11 +42,18 @@ xtr = flatten(xtr)
 
 
 
-clf = KernelRidge(lmb=0.5, kernel = 'rbf', sigma=1)
+clf = KernelRidge(lmb=0.7, kernel = 'rbf', sigma=1)
 clf_combined = combined_classifier(clf)
-clf_combined.fit(xtr,ytr)
+clf_combined.fit(xtr, ytr)
 ypredict = clf_combined.predict(xte)
 
+#clf = KernelRidge(lmb=0.7, kernel = 'rbf', sigma=1)
+#clf_combined = combined_classifier(clf)
+#x_train, x_test, y_train, y_test = train_test_split(xtr, ytr, test_size=0.2)
+#clf_combined.fit(x_train, y_train)
+##ypredict = clf_combined.predict(xte)
+#wtf = clf_combined.score(x_test, y_test)
+#print wtf
 
 
 ### parameter tuning (gaussian kernel + knn)
