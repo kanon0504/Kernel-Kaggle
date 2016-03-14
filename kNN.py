@@ -17,10 +17,10 @@ def kNN(k, xtr, ytr, xte, sigma):
     #       use the GaussianDistance(A,B, sigma) function.
     #
 
-    m = asarray(xte).shape[0]
+    m = len(xte)
     yte = []
 
-    n = asarray(xtr).shape[0]
+    n = len(xtr)
     distance = zeros(n)
 
     for j in range(m):
@@ -34,7 +34,8 @@ def kNN(k, xtr, ytr, xte, sigma):
             neighbors[i] = ytr[index[i]]
 
         c = Counter(neighbors)
-        yte.append(c.most_common()[0][0])
+        label = c.most_common()[0][0]
+        yte.append(str(int(label)))
 
 
     # return the label of the test data
