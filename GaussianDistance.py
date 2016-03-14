@@ -14,5 +14,5 @@ def GaussianDistance(vectorA, vectorB, sigma):
 	for i in range(mA):
 		distance = distance + pow((vectorA[i]-vectorB[i]),2)
 		
-	distance = np.sqrt(2*(1 - np.exp(-distance/(2*sigma))))
+	distance = np.sqrt(2*(1 - np.exp(-distance/(2.*sigma))))
 	return distance
