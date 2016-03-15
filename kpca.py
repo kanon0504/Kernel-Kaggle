@@ -10,11 +10,11 @@ class kpca(object):
 		n = len(x)
 		m = len(x[0])
 		x = np.asarray(x)
-		mean = np.mean(x,axis = 1)
+		mean = np.mean(x,axis = 0)
 		x_centered = (x - (mean * np.ones(m*n).reshape(m,n)).T).T
 		# centralize x
 
-		c = np.dot(x_centered,x_centered.T) * (1./n)
+		c = np.dot(x_centered.T,x_centered) * (1./n)
 		# covariance matrix
 
 		u,s,v = np.linalg.svd(c)
