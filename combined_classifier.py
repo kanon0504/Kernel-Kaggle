@@ -5,10 +5,11 @@ import copy
 class combined_classifier(object):
 	def __init__(self,object):
 		self.clf = object
-		self.clf_combined = []
-
+		
 	def fit(self,xtr,ytr):
-		self.class_list = list(set(ytr))
+		self.clf_combined = []
+		self.class_list = np.unique(ytr)
+                print self.class_list
 		for item in self.class_list:
 			clf_temp = copy.deepcopy(self.clf)
 			y_temp = []
@@ -27,7 +28,7 @@ class combined_classifier(object):
 		score = np.array(score).T
 		opt = np.argmax(score, axis = 1)
 		print opt
-		output = [self.class_list[i] for i in opt]
+		output = [self.class_list[int(i)] for i in opt]
 		return output
 	# input: each data entry of the database
 	# output: the prediction class in string type
