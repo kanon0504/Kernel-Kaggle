@@ -14,7 +14,7 @@ xte = load_data_test()
 
 #print xtr[0]
 
-#plot(xtr, ytr)
+plot(xtr, ytr)
 
 xte = flatten(xte)
 xtr = flatten(xtr)

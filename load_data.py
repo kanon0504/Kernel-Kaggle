@@ -14,7 +14,7 @@ def load_data():
 		reader = csv.reader(csvfile, delimiter = ',')
 		for row in reader:
 			row = np.array(row, dtype = np.float32).reshape(28,28)
-			row = normalize(row)
+			row = preprocessing(row)
 			xtr.append(list(row.astype(np.float32)))
 
 	with open('Ytr.csv','rb') as csvfile:
@@ -30,7 +30,7 @@ def load_data_test():
 		reader = csv.reader(csvfile, delimiter = ',')
 		for row in reader:
 			row = np.array(row, dtype = np.float32).reshape(28,28)
-			row= normalize(row)
+			row= preprocessing(row)
 			xte.append(list(row.astype(np.float32)))
 	return xte
 
@@ -52,10 +52,15 @@ def preprocessing(img):
         ratio = height / 20.0
     else:
         ratio = width / 20.0
-    img = resize(img, (int(width / ratio), int(height / ratio)))
+    img = resize(img, (int(height / ratio), int(width / ratio)))
     img = copyMakeBorder(img, 0, 28 - img.shape[0], 0, 28 - img.shape[1])
-    offset = center(img)
-    img = translation(img, offset)
+    #offset = center(img)
+    #img = translation(img, offset)
+    M = cv2.moments(img)
+    cx = M['m10'] / M['m00']
+    cy = M['m01'] / M['m00']
+    m = np.asarray([[1, 0, 14 - cx], [0, 1, 14 - cy]])
+    img = cv2.warpAffine(img, m, (28, 28))
     img = blur(img, (3, 3))
     return img
 
@@ -136,6 +141,7 @@ def normalize(img, alpha, beta):
     SUP = sup * np.ones(img.shape)
     img = alpha * np.ones(img.shape) + (img - INF) / (SUP - INF) * (beta - alpha)
     return img
+
 def resize(img, shape):
     """Resize an image to a desired shape
 
@@ -160,6 +166,7 @@ def resize(img, shape):
 
     # resized image
     img = fun(x_new, y_new)
+    img = img.reshape(shape)
 
     return img
 
