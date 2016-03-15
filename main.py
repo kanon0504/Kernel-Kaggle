@@ -5,6 +5,9 @@ from sklearn.cross_validation import train_test_split
 from sklearn import svm
 from KernelRidge import *
 from kNN import kNN
+from svmc import *
+from svm import *
+
 #from sklearn.kernel_ridge import KernelRidge
 #from sklearn.grid_search import GridSearchCV
 
@@ -20,21 +23,18 @@ xtr = flatten(xtr)
 
 
 
-### parameter tuning (gaussian kernel + svm)
+### parameter tuning (gaussian kernel + svmc)
 #xtr1, xtr2, ytr1, ytr2 = train_test_split(xtr, ytr, test_size=0.2)
 ###find the best lmd and sigma with xtr1 and ytr1
-#for i in [0.3,0.5,0.7]:
-#	for j in [0.9,1.0,1.1,1.2]:
-#		clf = KernelRidge(lmb=i, kernel = 'rbf', sigma=j)
-#		clf_combined = combined_classifier(clf)
-#		x_train, x_test, y_train, y_test = train_test_split(xtr1, ytr1, test_size=0.2)
-#		clf_combined.fit(x_train,y_train)
-#		scores = clf_combined.score(x_test,y_test)
-#		print 'lmd:',i
-#		print 'sigma:',j
-#		print scores
+#for Ctest in [5,5,5,50,50,50,10000,10000,10000]:
+#	clf = svmc(lmb=0.5, kernel = 'rbf', sigma=1,C=Ctest)
+#	clf_combined = combined_classifier(clf)
+#	x_train, x_test, y_train, y_test = train_test_split(xtr1, ytr1, test_size=0.2)
+#	clf_combined.fit(x_train,y_train)
+#	scores = clf_combined.score(x_test,y_test)
+##	print scores
 ### try model on xtr2 and ytr2 
-#clf = KernelRidge(lmb=0.5, kernel = 'rbf', sigma=1)
+#clf = svm2(lmb=0.5, kernel = 'rbf', sigma=1)
 #clf_combined = combined_classifier(clf)
 #clf_combined.fit(xtr1,ytr1)
 #scores = clf_combined.score(xtr2,ytr2)
@@ -47,11 +47,12 @@ xtr = flatten(xtr)
 #clf_combined.fit(xtr, ytr)
 #ypredict = clf_combined.predict(xte)
 
-clf = KernelRidge(lmb=0.7, kernel = 'rbf', sigma=1)
+###test idea
+clf = svm2(lmb=0.05, kernel = 'rbf', sigma=1)
 clf_combined = combined_classifier(clf)
 x_train, x_test, y_train, y_test = train_test_split(xtr, ytr, test_size=0.2)
 clf_combined.fit(x_train, y_train)
-#ypredict = clf_combined.predict(xte)
+ypredict = clf_combined.predict(xte)
 wtf = clf_combined.score(x_test, y_test)
 print wtf
 
