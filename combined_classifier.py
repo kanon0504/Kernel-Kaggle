@@ -20,6 +20,7 @@ class combined_classifier(object):
 			clf_temp.fit(xtr,y_temp)
 			self.clf_combined.append(clf_temp)
 
+
 	def predict(self,xtr):
 		score = []
 		for i in self.clf_combined:			
