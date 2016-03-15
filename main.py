@@ -5,8 +5,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn import svm
 from KernelRidge import *
 from kNN import kNN
-from svmc import *
-from svm import *
+
 
 #from sklearn.kernel_ridge import KernelRidge
 #from sklearn.grid_search import GridSearchCV
@@ -48,7 +47,7 @@ xtr = flatten(xtr)
 #ypredict = clf_combined.predict(xte)
 
 ###test idea
-clf = svm2(lmb=0.05, kernel = 'rbf', sigma=1)
+clf = KernelRidge(lmb=0.05, kernel = 'rbf', sigma=1)
 clf_combined = combined_classifier(clf)
 x_train, x_test, y_train, y_test = train_test_split(xtr, ytr, test_size=0.2)
 clf_combined.fit(x_train, y_train)
