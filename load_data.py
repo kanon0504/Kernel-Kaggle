@@ -1,5 +1,6 @@
 import csv
 import numpy as np 
+from numba import jit
 from scipy.interpolate import interp2d
 import matplotlib.pyplot as plt
 import cv2
@@ -61,13 +62,73 @@ def normalize(img):
     img = cv2.blur(img, (3, 3), 0)
     return img
 
+def translation(img, offset):
+    dx = offset[0]
+    dy = offset[1]
+    assert dx >= 0 and dy >= 0
+    dx = int(dx)
+    dy = int(dy)
+    width = img.shape[1]
+    height = img.shape[0]
+    img = copyMakeBorder(img, dy, 0, dx, 0)
+    img = img[:height, :width]
+    return img
+
+def center(img, method = 'mass'):
+    if method == 'mass':
+        m00 = np.sum(img)
+        
+        width = img.shape[1]
+        height = img.shape[0]
+
+        tmp = np.ones((height, 1)).dot(np.arange(width)[np.newaxis, :])
+        m10 = np.sum(img * tmp)
+        m01 = np.sum(img * tmp.T)
+        return m10 / float(m00), m01 / float(m00)
+    else:
+        return img.shape[1] / 2, img.shape[0] / 2
+
 def threshold(img, thresh, beta, alpha = 0.0):
     return alpha * (img < thresh) + beta * (img >= thresh)
 
+@jit
 def filter2D(img, kernel, anchor = (-1, -1)):
+    top = kernel.shape[0] / 2
+    left = kernel.shape[1] / 2
+
+    img = copyMakeBorder(img, top, top, left, left)
+
+    img_new = np.zeros(img.shape)
+
+    if anchor == (-1, -1):
+        anchor = (top, left)
+
+    for i in range(top, img_new.shape[0] - top):
+        for j in range(left, img_new.shape[1] - left):
+            for k in range(kernel.shape[0]):
+                for l in range(kernel.shape[1]):
+                    img_new[i][j] += kernel[k][l] * img[i + k - anchor[0]][j + l - anchor[1]]
+    
+    img_new = img_new[top:img_new.shape[0] - top, left:img_new.shape[1] - left]
+    return img_new
+
+def blur(img, ksize):
+    kernel = np.ones(ksize) / float(ksize[0] * ksize[1])
+    img = filter2D(img, kernel)
     return img
 
 def copyMakeBorder(img, top, bottom, left, right):
+    for i in range(top):
+        img = np.insert(img, 0, 0, axis = 0)
+
+    for i in range(bottom):
+        img = np.insert(img, img.shape[0], 0, axis = 0)
+
+    for i in range(left):
+        img = np.insert(img, 0, 0, axis = 1)
+
+    for i in range(right):
+        img = np.insert(img, img.shape[1], 0, axis = 1)
     return img
     
 def normalize_(img, alpha, beta):
@@ -148,10 +209,25 @@ if __name__ == '__main__':
     #cv2.imshow('img', img)
     #cv2.waitKey()
     
-    ## test normalize
-    a = np.asarray([[0, 255], [128, 64]])
-    a = normalize_(a, 0, 1)
-    print a
+    ### test normalize
+    #a = np.asarray([[0, 255], [128, 64]])
+    #a = normalize_(a, 0, 1)
+    #print a
 
-    a = threshold(a, 0.5, 255.0)
-    print a
+    #a = threshold(a, 0.5, 255.0)
+    #print a
+
+    ##a = copyMakeBorder(a, 0, 1, 2, 3)
+    ##print a
+    #kernel = np.ones((3, 3)) / 9.0
+    #a = filter2D(a, kernel)
+    #print a
+
+    img = cv2.imread('lena_std.tif', cv2.IMREAD_GRAYSCALE)
+    img = blur(img, (3, 3))
+    img = img.astype(np.uint8)
+    cv2.imshow('img', img)
+    cv2.waitKey()
+    img = translation(img, (128, 128))
+    cv2.imshow('img', img)
+    cv2.waitKey()
