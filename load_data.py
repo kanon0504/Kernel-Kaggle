@@ -4,7 +4,7 @@ from numba import jit
 from scipy.interpolate import interp2d
 import matplotlib.pyplot as plt
 import maxflow
-import cv2
+
 
 
 def load_data():
