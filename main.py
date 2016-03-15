@@ -5,7 +5,6 @@ from sklearn.cross_validation import train_test_split
 from sklearn import svm
 from KernelRidge import *
 from kNN import kNN
-from svmc import *
 from svm import *
 
 #from sklearn.kernel_ridge import KernelRidge

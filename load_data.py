@@ -34,9 +34,9 @@ def load_data_test():
 			xte.append(list(row.astype(np.float32)))
 	return xte
 
-def normalize(img):
-    img = cv2.normalize(img, 0.0, 1.0, norm_type = cv2.cv.CV_MINMAX)
-    _, img = cv2.threshold(img, 0.5, 1.0, cv2.THRESH_BINARY)
+def preprocessing(img):
+    img = normalize(img, 0.0, 1.0)
+    img = threshold(img, 0.5, 1.0)
     row_sum = np.sum(img, axis = 1)
     tmp = np.nonzero(row_sum)[0]
     min_y = tmp[0]
@@ -52,14 +52,11 @@ def normalize(img):
         ratio = height / 20.0
     else:
         ratio = width / 20.0
-    img = cv2.resize(img, (int(width / ratio), int(height / ratio)))
-    img = cv2.copyMakeBorder(img, 0, 28 - img.shape[0], 0, 28 - img.shape[1], borderType = cv2.BORDER_CONSTANT)
-    M = cv2.moments(img)
-    cx = M['m10'] / M['m00']
-    cy = M['m01'] / M['m00']
-    m = np.asarray([[1, 0, 14 - cx], [0, 1, 14 - cy]])
-    img = cv2.warpAffine(img, m, (28, 28))
-    img = cv2.blur(img, (3, 3), 0)
+    img = resize(img, (int(width / ratio), int(height / ratio)))
+    img = copyMakeBorder(img, 0, 28 - img.shape[0], 0, 28 - img.shape[1])
+    offset = center(img)
+    img = translation(img, offset)
+    img = blur(img, (3, 3))
     return img
 
 def translation(img, offset):
@@ -86,7 +83,7 @@ def center(img, method = 'mass'):
         m01 = np.sum(img * tmp.T)
         return m10 / float(m00), m01 / float(m00)
     else:
-        return img.shape[1] / 2, img.shape[0] / 2
+        return img.shape[1] / 2.0, img.shape[0] / 2.0
 
 def threshold(img, thresh, beta, alpha = 0.0):
     return alpha * (img < thresh) + beta * (img >= thresh)
@@ -131,7 +128,7 @@ def copyMakeBorder(img, top, bottom, left, right):
         img = np.insert(img, img.shape[1], 0, axis = 1)
     return img
     
-def normalize_(img, alpha, beta):
+def normalize(img, alpha, beta):
     assert beta > alpha
     inf = np.amin(img)
     sup = np.amax(img)
