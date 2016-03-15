@@ -1,0 +1,44 @@
+import numpy as np
+import random
+from kNN import kNN, verify
+
+def cross_val_score_kNN(xtr, ytr, k_neighbors, sigma, k_folds):
+	
+	xy = np.concatenate((xtr,ytr[:,np.newaxis]),axis=1)
+	np.random.shuffle(xy)
+
+
+	n = xtr.shape[0]
+	fold_sizes = (n // k_folds) * np.ones(k_folds)
+	fold_sizes[:n % k_folds] += 1
+
+	def get_split_set(xy,i,fold_size):
+		'''
+		@parameters:
+		i : int
+		the ith splited set 
+		'''
+
+		temp_te = xy[i*fold_size:(i+1)*fold_size]
+		temp_tr = np.concatenate((xy[:i*fold_size], xy[(i+1)*fold_size:]),axis = 0)
+		x_train = temp_tr[:,:784]
+		y_train = temp_tr[:,784:]
+		x_test = temp_te[:,:784]
+		y_test = temp_te[:,784:]
+
+		y_train = np.asarray([int(i) for i in y_train])
+		y_test = np.asarray([int(i) for i in y_test])
+		return x_train,x_test,y_train,y_test
+
+	score = []
+	i = 0
+
+	for fold_size in fold_sizes:
+		x_train,x_test,y_train,y_test = get_split_set(xy,i,fold_size)
+		y_pred = kNN(k_neighbors, x_train, y_train, x_test, sigma)
+		scores = verify(y_pred, y_test)
+		i += 1
+		print scores
+		score.append(scores)
+
+	return np.mean(np.asarray(score))
