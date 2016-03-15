@@ -17,6 +17,9 @@ def kNN(k, xtr, ytr, xte, sigma):
     #       use the GaussianDistance(A,B, sigma) function.
     #
 
+    xtr = list(xtr)
+    ytr = ytr.tolist()
+    
     m = len(xte)
     yte = []
 
