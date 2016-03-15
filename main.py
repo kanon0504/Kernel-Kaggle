@@ -6,7 +6,6 @@ from sklearn import svm
 from KernelRidge import *
 from kNN import kNN
 
-
 xtr, ytr = load_data()
 xte = load_data_test()
 xte = np.asarray(flatten(xte))
