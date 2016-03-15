@@ -1,5 +1,6 @@
 import csv
 import numpy as np 
+from scipy.interpolate import interp2d
 import matplotlib.pyplot as plt
 import cv2
 
@@ -61,6 +62,33 @@ def normalize(img):
     H = cv2.HuMoments(M)
     return img, H
 
+def resize(img, shape = img.shape):
+    """Resize an image to a desired shape
+
+    Keyword arguments:
+    img -- numpy 2d-array as input image
+    shape -- tuple of form (height, width) (default img.shape)
+    """
+
+    fx = img.shape[1] / float(shape[1]) 
+    fy = img.shape[0] / float(shape[0])
+
+    # old mesh grid with new coordinates
+    x = np.linspace(0, shape[1], img.shape[1])
+    y = np.linspace(0, shape[0], img.shape[0])
+
+    # interpolation
+    fun = interp2d(x, y, img)
+
+    # new mesh grid
+    x_new = np.arange(shape[1])
+    y_new = np.arange(shape[0])
+
+    # resized image
+    img = fun(x_new, y_new)
+
+    return img
+
 def flip(xtr,ytr):
 	x = []
 	y = []
@@ -95,3 +123,10 @@ def plot(xtr,ytr):
 	    plt.yticks(())    
 	    plt.title(ytr[k], size=10)
 	plt.show()
+
+if __name__ == '__main__':
+    img = cv2.imread('lena_std.tif', cv2.IMREAD_GRAYSCALE)
+    img = resize(img, (756, 756))
+    img = img.astype(np.uint8)
+    cv2.imshow('img', img)
+    cv2.waitKey()
