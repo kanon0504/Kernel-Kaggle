@@ -52,7 +52,7 @@ def normalize(img):
     else:
         ratio = width / 20.0
     img = cv2.resize(img, (int(width / ratio), int(height / ratio)))
-    img = cv2.GaussianBlur(img, (3, 3), 0)
+    img = cv2.blur(img, (3, 3), 0)
     img = cv2.copyMakeBorder(img, 0, 28 - img.shape[0], 0, 28 - img.shape[1], borderType = cv2.BORDER_CONSTANT)
     M = cv2.moments(img)
     cx = M['m10'] / M['m00']
@@ -62,12 +62,29 @@ def normalize(img):
     H = cv2.HuMoments(M)
     return img, H
 
-def resize(img, shape = img.shape):
+def threshold(img, thresh, beta, alpha = 0.0):
+    return alpha * (img < thresh) + beta * (img >= thresh)
+
+def filter2D(img, kernel, anchor = (-1, -1)):
+    return img
+
+def copyMakeBorder(img, top, bottom, left, right):
+    return img
+    
+def normalize_(img, alpha, beta):
+    assert beta > alpha
+    inf = np.amin(img)
+    sup = np.amax(img)
+    INF = inf * np.ones(img.shape)
+    SUP = sup * np.ones(img.shape)
+    img = alpha * np.ones(img.shape) + (img - INF) / (SUP - INF) * (beta - alpha)
+    return img
+def resize(img, shape):
     """Resize an image to a desired shape
 
     Keyword arguments:
     img -- numpy 2d-array as input image
-    shape -- tuple of form (height, width) (default img.shape)
+    shape -- tuple of form (height, width) 
     """
 
     fx = img.shape[1] / float(shape[1]) 
@@ -125,8 +142,17 @@ def plot(xtr,ytr):
 	plt.show()
 
 if __name__ == '__main__':
-    img = cv2.imread('lena_std.tif', cv2.IMREAD_GRAYSCALE)
-    img = resize(img, (756, 756))
-    img = img.astype(np.uint8)
-    cv2.imshow('img', img)
-    cv2.waitKey()
+    ## test resize
+    #img = cv2.imread('lena_std.tif', cv2.IMREAD_GRAYSCALE)
+    #img = resize(img, (128, 128))
+    #img = img.astype(np.uint8)
+    #cv2.imshow('img', img)
+    #cv2.waitKey()
+    
+    ## test normalize
+    a = np.asarray([[0, 255], [128, 64]])
+    a = normalize_(a, 0, 1)
+    print a
+
+    a = threshold(a, 0.5, 255.0)
+    print a
