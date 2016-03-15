@@ -6,7 +6,6 @@ from sklearn import svm
 from KernelRidge import *
 from kNN import kNN
 
-
 #from sklearn.kernel_ridge import KernelRidge
 #from sklearn.grid_search import GridSearchCV
 
@@ -15,7 +14,7 @@ xte = load_data_test()
 
 #print xtr[0]
 
-#plot(xtr, ytr)
+plot(xtr, ytr)
 
 xte = flatten(xte)
 xtr = flatten(xtr)
