@@ -3,6 +3,7 @@ import numpy as np
 from numba import jit
 from scipy.interpolate import interp2d
 import matplotlib.pyplot as plt
+import maxflow
 import cv2
 
 
@@ -36,7 +37,8 @@ def load_data_test():
 
 def preprocessing(img):
     img = normalize(img, 0.0, 1.0)
-    img = threshold(img, 0.5, 1.0)
+    #img = threshold(img, 0.5, 1.0)
+    img = threshold_cut(img)
     row_sum = np.sum(img, axis = 1)
     tmp = np.nonzero(row_sum)[0]
     min_y = tmp[0]
@@ -54,25 +56,28 @@ def preprocessing(img):
         ratio = width / 20.0
     img = resize(img, (int(height / ratio), int(width / ratio)))
     img = copyMakeBorder(img, 0, 28 - img.shape[0], 0, 28 - img.shape[1])
-    #offset = center(img)
-    #img = translation(img, offset)
-    M = cv2.moments(img)
-    cx = M['m10'] / M['m00']
-    cy = M['m01'] / M['m00']
-    m = np.asarray([[1, 0, 14 - cx], [0, 1, 14 - cy]])
-    img = cv2.warpAffine(img, m, (28, 28))
+    ctr = center(img)
+    offset = (14 - ctr[0], 14 - ctr[1])
+    m = np.asarray([[1, 0, offset[0]], [0, 1, offset[1]]])
+    img = translation(img, offset)
     img = blur(img, (3, 3))
     return img
 
 def translation(img, offset):
     dx = offset[0]
     dy = offset[1]
-    assert dx >= 0 and dy >= 0
     dx = int(dx)
     dy = int(dy)
     width = img.shape[1]
     height = img.shape[0]
-    img = copyMakeBorder(img, dy, 0, dx, 0)
+    if dx >= 0 and dy >= 0:
+        img = copyMakeBorder(img, dy, 0, dx, 0)
+    elif dx >= 0 and dy <0:
+        img = copyMakeBorder(img, 0, dy, dx, 0)
+    elif dx < 0 and dy >= 0:
+        img = copyMakeBorder(img, dy, 0, 0, dx)
+    else:
+        img = copyMakeBorder(img, 0, dy, 0, dx)
     img = img[:height, :width]
     return img
 
@@ -93,6 +98,60 @@ def center(img, method = 'mass'):
 def threshold(img, thresh, beta, alpha = 0.0):
     return alpha * (img < thresh) + beta * (img >= thresh)
 
+def g(x):
+    alpha = 0.01
+    beta = 1000.0
+    return beta / (1 + alpha * x * x)
+
+@jit
+def threshold_cut(img):
+    #G = cv2.Laplacian(img, cv2.CV_64F)
+    #return G
+    #ci = 1.0
+    #ce = 0.0
+    #width = img.shape[1]
+    #height = img.shape[0]
+    #graph = maxflow.Graph[float](width * height, 2*(width - 1) * (height - 1))
+    #nodes = graph.add_nodes(width * height)
+    #for i in range(height):
+    #    for j in range(width):
+    #        gi = np.abs(img[i][j] - ci)
+    #        ge = np.abs(img[i][j] - ce)
+    #        graph.add_tedge(nodes[i*width + j], ge, gi);
+
+    #for i in range(height - 1):
+    #    for j in range(width - 1):
+    #        for k in range(2):
+    #            for l in range(2):
+    #                if k != l:
+    #                    lbd = g((G[i][j]+G[i+l][j+k])/2)
+    #                    graph.add_edge(nodes[i*width+j], nodes[(i+l)*width+(j+k)], lbd, lbd)
+
+    #flow = graph.maxflow()
+
+    #tmp = graph.get_grid_segments(nodes)
+    #
+    #return tmp.reshape((28, 28))
+    #for i in range(height):
+    #    for j in range(width):
+    #        img[i][j] = graph.get_segment(nodes[i * width + j])
+    #return img
+
+    # Create the graph.
+    g = maxflow.Graph[float]()
+    # Add the nodes. nodeids has the identifiers of the nodes in the grid.
+    nodeids = g.add_grid_nodes(img.shape)
+    # Add non-terminal edges with the same capacity.
+    g.add_grid_edges(nodeids, 0.1)
+    # Add the terminal edges. The image pixels are the capacities
+    # of the edges from the source node. The inverted image pixels
+    # are the capacities of the edges to the sink node.
+    g.add_grid_tedges(nodeids, img, 1.0-img)
+    # Find the maximum flow.
+    g.maxflow()
+    # Get the segments of the nodes in the grid.
+    sgm = g.get_grid_segments(nodeids)
+    return np.int_(np.logical_not(sgm))
 @jit
 def filter2D(img, kernel, anchor = (-1, -1)):
     top = kernel.shape[0] / 2
@@ -112,10 +171,25 @@ def filter2D(img, kernel, anchor = (-1, -1)):
                     img_new[i][j] += kernel[k][l] * img[i + k - anchor[0]][j + l - anchor[1]]
     
     img_new = img_new[top:img_new.shape[0] - top, left:img_new.shape[1] - left]
+
     return img_new
 
-def blur(img, ksize):
-    kernel = np.ones(ksize) / float(ksize[0] * ksize[1])
+def gaussian_kernel(size, size_y=None):
+    size = int(size)
+    if not size_y:
+        size_y = size
+    else:
+        size_y = int(size_y)
+    x, y = np.mgrid[-size:size+1, -size_y:size_y+1]
+    g = np.exp(-(x**2/float(size)+y**2/float(size_y)))
+    return g / g.sum()
+
+def blur(img, ksize, method = 'gaussian'):
+    if method == 'gaussian':
+        #kernel = gaussian_kernel(ksize[0], ksize[1])
+        kernel = np.asarray([[1/16.0, 1/8.0, 1/16.0], [1/8.0, 1/4.0, 1/8.0], [1/16.0, 1/8.0, 1/16.0]])
+    else:
+        kernel = np.ones(ksize) / float(ksize[0] * ksize[1])
     img = filter2D(img, kernel)
     return img
 
@@ -228,10 +302,12 @@ if __name__ == '__main__':
     #print a
 
     img = cv2.imread('lena_std.tif', cv2.IMREAD_GRAYSCALE)
-    img = blur(img, (3, 3))
-    img = img.astype(np.uint8)
-    cv2.imshow('img', img)
-    cv2.waitKey()
-    img = translation(img, (128, 128))
-    cv2.imshow('img', img)
-    cv2.waitKey()
+    wtf = threshold_cut(img)
+    #img = blur(img, (3, 3))
+    #img = img.astype(np.uint8)
+    #cv2.imshow('img', img)
+    #cv2.waitKey()
+    #img = translation(img, (5.5, 128))
+    #cv2.imshow('img', img)
+    #cv2.waitKey()
+
