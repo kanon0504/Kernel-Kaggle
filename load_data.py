@@ -1,5 +1,6 @@
 import csv
 import numpy as np 
+from scipy.interpolate import interp2d
 import matplotlib.pyplot as plt
 import cv2
 
@@ -60,6 +61,50 @@ def normalize(img):
     img = cv2.blur(img, (3, 3), 0)
     return img
 
+def threshold(img, thresh, beta, alpha = 0.0):
+    return alpha * (img < thresh) + beta * (img >= thresh)
+
+def filter2D(img, kernel, anchor = (-1, -1)):
+    return img
+
+def copyMakeBorder(img, top, bottom, left, right):
+    return img
+    
+def normalize_(img, alpha, beta):
+    assert beta > alpha
+    inf = np.amin(img)
+    sup = np.amax(img)
+    INF = inf * np.ones(img.shape)
+    SUP = sup * np.ones(img.shape)
+    img = alpha * np.ones(img.shape) + (img - INF) / (SUP - INF) * (beta - alpha)
+    return img
+def resize(img, shape):
+    """Resize an image to a desired shape
+
+    Keyword arguments:
+    img -- numpy 2d-array as input image
+    shape -- tuple of form (height, width) 
+    """
+
+    fx = img.shape[1] / float(shape[1]) 
+    fy = img.shape[0] / float(shape[0])
+
+    # old mesh grid with new coordinates
+    x = np.linspace(0, shape[1], img.shape[1])
+    y = np.linspace(0, shape[0], img.shape[0])
+
+    # interpolation
+    fun = interp2d(x, y, img)
+
+    # new mesh grid
+    x_new = np.arange(shape[1])
+    y_new = np.arange(shape[0])
+
+    # resized image
+    img = fun(x_new, y_new)
+
+    return img
+
 def flip(xtr,ytr):
 	x = []
 	y = []
@@ -94,3 +139,19 @@ def plot(xtr,ytr):
 	    plt.yticks(())    
 	    plt.title(ytr[k], size=10)
 	plt.show()
+
+if __name__ == '__main__':
+    ## test resize
+    #img = cv2.imread('lena_std.tif', cv2.IMREAD_GRAYSCALE)
+    #img = resize(img, (128, 128))
+    #img = img.astype(np.uint8)
+    #cv2.imshow('img', img)
+    #cv2.waitKey()
+    
+    ## test normalize
+    a = np.asarray([[0, 255], [128, 64]])
+    a = normalize_(a, 0, 1)
+    print a
+
+    a = threshold(a, 0.5, 255.0)
+    print a
