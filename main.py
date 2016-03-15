@@ -48,7 +48,7 @@ xtr = flatten(xtr)
 ###test idea
 clf = KernelRidge(lmb=0.05, kernel = 'rbf', sigma=1)
 clf_combined = combined_classifier(clf)
-x_train, x_test, y_train, y_test = train_test_split(xtr, ytr, test_size=0.2)
+x_train, x_test, y_train, y_test = train_test_split(xtr, ytr, test_size=0.2, random_state = 0)
 clf_combined.fit(x_train, y_train)
 ypredict = clf_combined.predict(xte)
 wtf = clf_combined.score(x_test, y_test)
