@@ -42,18 +42,18 @@ xtr = flatten(xtr)
 
 
 
-clf = KernelRidge(lmb=0.7, kernel = 'rbf', sigma=1)
-clf_combined = combined_classifier(clf)
-clf_combined.fit(xtr, ytr)
-ypredict = clf_combined.predict(xte)
-
 #clf = KernelRidge(lmb=0.7, kernel = 'rbf', sigma=1)
 #clf_combined = combined_classifier(clf)
-#x_train, x_test, y_train, y_test = train_test_split(xtr, ytr, test_size=0.2)
-#clf_combined.fit(x_train, y_train)
-##ypredict = clf_combined.predict(xte)
-#wtf = clf_combined.score(x_test, y_test)
-#print wtf
+#clf_combined.fit(xtr, ytr)
+#ypredict = clf_combined.predict(xte)
+
+clf = KernelRidge(lmb=0.7, kernel = 'rbf', sigma=1)
+clf_combined = combined_classifier(clf)
+x_train, x_test, y_train, y_test = train_test_split(xtr, ytr, test_size=0.2)
+clf_combined.fit(x_train, y_train)
+#ypredict = clf_combined.predict(xte)
+wtf = clf_combined.score(x_test, y_test)
+print wtf
 
 
 ### parameter tuning (gaussian kernel + knn)
@@ -73,10 +73,10 @@ ypredict = clf_combined.predict(xte)
 
 
 
-f = open('Yte.csv','w')
-f.write("Id,Prediction"+"\n")
-for i in enumerate(ypredict):
-	f.write(str(i[0]+1)+','+str(i[1])+"\n")
-f.close()
+#f = open('Yte.csv','w')
+#f.write("Id,Prediction"+"\n")
+#for i in enumerate(ypredict):
+#	f.write(str(i[0]+1)+','+str(i[1])+"\n")
+#f.close()
 
 

@@ -12,7 +12,7 @@ def load_data():
 		reader = csv.reader(csvfile, delimiter = ',')
 		for row in reader:
 			row = np.array(row, dtype = np.float32).reshape(28,28)
-                        row = normalize(row)
+                        row, H = normalize(row)
 			xtr.append(list(row.astype(np.float32)))
 
 	with open('Ytr.csv','rb') as csvfile:
@@ -28,7 +28,7 @@ def load_data_test():
 		reader = csv.reader(csvfile, delimiter = ',')
 		for row in reader:
 			row = np.array(row, dtype = np.float32).reshape(28,28)
-                        row = normalize(row)
+                        row, H = normalize(row)
 			xte.append(list(row.astype(np.float32)))
 	return xte
 
@@ -51,14 +51,15 @@ def normalize(img):
     else:
         ratio = width / 20.0
     img = cv2.resize(img, (int(width / ratio), int(height / ratio)))
+    img = cv2.GaussianBlur(img, (3, 3), 0)
     img = cv2.copyMakeBorder(img, 0, 28 - img.shape[0], 0, 28 - img.shape[1], borderType = cv2.BORDER_CONSTANT)
     M = cv2.moments(img)
     cx = M['m10'] / M['m00']
     cy = M['m01'] / M['m00']
     m = np.asarray([[1, 0, 14 - cx], [0, 1, 14 - cy]])
     img = cv2.warpAffine(img, m, (28, 28))
-    img = cv2.GaussianBlur(img, (3, 3), 0)
-    return img
+    H = cv2.HuMoments(M)
+    return img, H
 
 def flip(xtr,ytr):
 	x = []
