@@ -1,6 +1,5 @@
 import csv
 import numpy as np 
-from numba import jit
 from scipy.interpolate import interp2d
 import matplotlib.pyplot as plt
 import maxflow
@@ -103,7 +102,7 @@ def g(x):
     beta = 1000.0
     return beta / (1 + alpha * x * x)
 
-@jit
+
 def threshold_cut(img):
     #G = cv2.Laplacian(img, cv2.CV_64F)
     #return G
@@ -152,7 +151,7 @@ def threshold_cut(img):
     # Get the segments of the nodes in the grid.
     sgm = g.get_grid_segments(nodeids)
     return np.int_(np.logical_not(sgm))
-@jit
+
 def filter2D(img, kernel, anchor = (-1, -1)):
     top = kernel.shape[0] / 2
     left = kernel.shape[1] / 2
