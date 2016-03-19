@@ -13,6 +13,7 @@ xte = np.asarray(flatten(xte))
 xtr = np.asarray(flatten(xtr))
 ytr = np.asarray([int(i) for i in ytr])
 
+
 def cross_val_score(estimitor, xtr,ytr):
 	xy = np.concatenate((xtr,ytr[:,np.newaxis]),axis=1)
 	np.random.shuffle(xy)
@@ -40,19 +41,23 @@ def cross_val_score(estimitor, xtr,ytr):
 
 	return np.mean(np.asarray(score))
 
+'''
+### parameters tuning (gaussian kernel + svm)
+#find the best lamda and sigma with xtr and ytr by cross validation
 clf = KernelRidge(lmb=0.05, kernel = 'rbf', sigma=1)
 clf_combined = combined_classifier(clf)
 wtf = cross_val_score(clf_combined,xtr,ytr)
 print wtf
 
-### final predict
-#clf = KernelRidge(lmb=0.7, kernel = 'rbf', sigma=1)
-#clf_combined = combined_classifier(clf)
-#clf_combined.fit(xtr, ytr)
-#ypredict = clf_combined.predict(xte)
+### final predict by svm
+clf = KernelRidge(lmb=0.7, kernel = 'rbf', sigma=1)
+clf_combined = combined_classifier(clf)
+clf_combined.fit(xtr, ytr)
+ypredict = clf_combined.predict(xte)
+'''
 
 
-
+'''
 ### parameters tuning (gaussian kernel + knn)
 #find the best k and sigma with xtr and ytr by cross validation
 xtr1, xtr2, ytr1, ytr2 = train_test_split(xtr, ytr, test_size=0.2)
@@ -66,9 +71,10 @@ for i in [1,3,5,7,9,11,13]:
 ypredict = kNN(1, xtr1, ytr1, xtr2, 1.6)
 scores = verify(ypredict, ytr2)
 print scores
+'''
 
+### final predict by kNN
 ypredict = kNN(5, xtr, ytr, xte,1.7)
-
 
 
 f = open('Yte.csv','w')
