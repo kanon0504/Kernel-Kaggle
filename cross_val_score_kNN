@@ -3,6 +3,19 @@ import random
 from kNN import kNN, verify
 
 def cross_val_score_kNN(xtr, ytr, k_neighbors, sigma, k_folds):
+	'''
+	realize a cross validation for the kNN method
+	@parameters:
+	xtr : a np.array on shape (n,784)
+	ytr : a np.array on shape (n,1)
+	k_neighbors : int,
+			the main parameter of kNN
+	sigma : float,
+			the main parameter of gaussian kernel
+	k_folds : int,
+			number of folds for the cross validation
+	@output : score for the cross validation
+	'''
 	
 	xy = np.concatenate((xtr,ytr[:,np.newaxis]),axis=1)
 	np.random.shuffle(xy)
@@ -14,9 +27,12 @@ def cross_val_score_kNN(xtr, ytr, k_neighbors, sigma, k_folds):
 
 	def get_split_set(xy,i,fold_size):
 		'''
+		get one fold of the data set
 		@parameters:
 		i : int
-		the ith splited set 
+		the ith splited set
+		fold_size : int
+			size of the fold
 		'''
 
 		temp_te = xy[i*fold_size:(i+1)*fold_size]
