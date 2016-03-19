@@ -9,10 +9,11 @@ def GaussianDistance(vectorA, vectorB, sigma):
 	
 	assert mA == mB, 'The two vectors must have the same size'
 	
-	distance = 0
+	A = vectorA.dot(vectorA.T)
+	B = vectorB.dot(vectorB.T)
+	C = vectorA.dot(vectorB.T)
 	
-	for i in range(mA):
-		distance = distance + pow((vectorA[i]-vectorB[i]),2)
+	distance = A - 2*C + B # euclidien distance between two vectors
 		
-	distance = np.sqrt(2*(1 - np.exp(-distance/(2.*sigma))))
+	distance = np.sqrt(2*(1 - np.exp(-distance/(2.*sigma)))) # distance for the Gaussian kernel
 	return distance
