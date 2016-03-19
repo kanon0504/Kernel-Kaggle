@@ -1,10 +1,14 @@
 import numpy as np
 
 def GaussianDistance(vectorA, vectorB, sigma):
-	"""
+	'''
 	Computes the distance between two vectors for the Gaussian
 	kernel. The two vectors must have the same size.
-	"""
+	@parameters:
+	vectorA, vectorB : a np.array on shape (p,1)
+	sigma : float
+		the main parameter of Gaussian kernel
+	'''
 
 	mA = len(vectorA) # length of vectorA
 	mB = len(vectorB) # length of vectorB
