@@ -17,8 +17,8 @@ class linear_kernel:
     def Kernel_arr(self,Xtest):
 		"""
 		For prediction: 
-		input x_test, np.array on shape (m, p)
-		output np.array, on shape (n,m)
+		input : x_test, np.array on shape (m, p)
+		output : np.array, on shape (n,m)
 		"""
 		return self._x.dot(Xtest.T)
 
@@ -29,9 +29,9 @@ class rbf_kernel:
 	def __init__(self, sigma = 1.0):
 		
 		"""
-		:parameters:
+		@parameters:
 		sigma : float
-			The main parameter of gaussien kernel
+			The main parameter of gaussian kernel
 		"""
 		self._sigma = sigma
 
@@ -40,7 +40,7 @@ class rbf_kernel:
 		
 		"""
 		create the kernel matrix
-		input : X_train, a np.array on shape (n,p)
+		input : x_train, a np.array on shape (n,p)
 		"""
 		x = np.asarray(x)
 		n = x.shape[0]
@@ -60,8 +60,8 @@ class rbf_kernel:
 		
 		"""
 		For prediction: 
-		input  : x_test, a np.array en shape (m,p)
-		output np.array, on shape (n,m)
+		input : x_test, a np.array en shape (m,p)
+		output : np.array, on shape (n,m)
 		"""
 
 		Y = np.asarray(Xtest)
@@ -84,12 +84,12 @@ class KernelRidge:
 	def __init__(self, lmb = 0.01, kernel = None, sigma = 1.0):
 	    	
 		"""
-		:Parameters:
+		@Parameters:
 		lmb : float
 			The tuning parametre of ridge penalty 
 		kernel : string
 			Kernel type, can be 'linear' or 'rbf'
-		sigma : the main parameter of gaussien kernel, only used when kernel = 'rbf'
+		sigma : The main parameter of gaussian kernel, only used when kernel = 'rbf'
 		"""
 
 		if kernel == None:
@@ -114,8 +114,8 @@ class KernelRidge:
 		
 		"""
 		To fit the model:
-		input:  X_train, a np.array on shape (n,p)
-			y_train, a np.array on shape (n,)
+		input :  X_train, a np.array on shape (n,p)
+			 y_train, a np.array on shape (n,)
 		"""
 		self._x = np.asarray(X)
 		K_arr = self._kernel.kernel_create(np.asarray(X))
@@ -129,8 +129,8 @@ class KernelRidge:
 		
 		"""
 		To fit the model:
-		input: X_test, a np.array on shape (n,p)
-		output: y_train, a np.array on shape (n,)
+		input : X_test, a np.array on shape (n,p)
+		output : y_train, a np.array on shape (n,)
 		"""
 		ytemp = self._kernel.Kernel_arr(Xtest)
 
